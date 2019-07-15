@@ -39,7 +39,7 @@ class TodosController {
 
   getTodo(req, res) {
     const id = parseInt(req.params.id, 10);
-    models.Todo.findById(id)
+    models.Todo.findByPk(id)
       .then((todo) => {
         if (todo) {
           return res.status(200).send({
