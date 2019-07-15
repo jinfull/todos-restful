@@ -1,4 +1,5 @@
 import db from '../db/db';
+import models from '../models';
 
 class TodosController {
   getAllTodos(req, res) {
@@ -26,30 +27,89 @@ class TodosController {
     });
   }
 
+  // manually appending to db object
+
+  // createTodo(req, res) {
+  //   if (!req.body.title) {
+  //     return res.status(400).send({
+  //       success: 'false',
+  //       message: 'title is required',
+  //     });
+  //   } else if (!req.body.description) {
+  //     return res.status(400).send({
+  //       success: 'false',
+  //       message: 'description is required',
+  //     });
+  //   }
+  //   const todo = {
+  //     id: db.length + 1,
+  //     title: req.body.title,
+  //     description: req.body.description,
+  //   };
+  //   db.push(todo);
+  //   return res.status(201).send({
+  //     success: 'true',
+  //     message: 'todo added successfully',
+  //     todo,
+  //   });
+  // }
+
+
+
+  // adding to database
+
+  // createTodo(req, res) {
+  //   if (!req.body.title) {
+  //     return res.status(400).send({
+  //       success: 'false',
+  //       message: 'title is required',
+  //     });
+  //   }
+  //   const todo = {
+  //     title: req.body.title,
+  //   };
+  //   models.Todo.create(todo).then((todo) => {
+  //     return res.status(201).send({
+  //       success: 'true',
+  //       message: 'todo added successfully',
+  //       todo,
+  //     });
+  //   });
+  // }
+
+
+  // adding to database AND disallowing duplicate title entries
   createTodo(req, res) {
     if (!req.body.title) {
       return res.status(400).send({
         success: 'false',
         message: 'title is required',
       });
-    } else if (!req.body.description) {
-      return res.status(400).send({
-        success: 'false',
-        message: 'description is required',
-      });
     }
-    const todo = {
-      id: db.length + 1,
-      title: req.body.title,
-      description: req.body.description,
-    };
-    db.push(todo);
-    return res.status(201).send({
-      success: 'true',
-      message: 'todo added successfully',
-      todo,
-    });
+    models.Todo.findOne({
+      where: { title: req.body.title }
+    })
+      .then((todoFound) => {
+        if (todoFound) {
+          return res.status(403).send({
+            success: 'true',
+            message: 'A todo with that title exist already',
+          });
+        }
+        const todo = {
+          title: req.body.title,
+        };
+        models.Todo.create(todo).then((todo) => {
+          return res.status(201).send({
+            success: 'true',
+            message: 'todo added successfully',
+            todo,
+          });
+        });
+      })
   }
+
+
 
   updateTodo(req, res) {
     const id = parseInt(req.params.id, 10);
