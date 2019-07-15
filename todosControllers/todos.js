@@ -2,30 +2,59 @@ import db from '../db/db';
 import models from '../models';
 
 class TodosController {
+  // getAllTodos(req, res) {
+  //   return res.status(200).send({
+  //     success: 'true',
+  //     message: 'todos retrieved successfully',
+  //     todos: db,
+  //   });
+  // }
+
   getAllTodos(req, res) {
-    return res.status(200).send({
-      success: 'true',
-      message: 'todos retrieved successfully',
-      todos: db,
-    });
+    models.Todo.findAll()
+      .then(todos => res.status(200).send({
+        success: 'true',
+        message: 'todos retrieved successfully',
+        todos,
+      }));
   }
+
+
+  // getTodo(req, res) {
+  //   const id = parseInt(req.params.id, 10);
+  //   db.map((todo) => {
+  //     if (todo.id === id) {
+  //       return res.status(200).send({
+  //         success: 'true',
+  //         message: 'todo retrieved successfully',
+  //         todo,
+  //       });
+  //     }
+  //   });
+  //   return res.status(404).send({
+  //     success: 'false',
+  //     message: 'todo does not exist',
+  //   });
+  // }
 
   getTodo(req, res) {
     const id = parseInt(req.params.id, 10);
-    db.map((todo) => {
-      if (todo.id === id) {
-        return res.status(200).send({
-          success: 'true',
-          message: 'todo retrieved successfully',
-          todo,
+    models.Todo.findById(id)
+      .then((todo) => {
+        if (todo) {
+          return res.status(200).send({
+            success: 'true',
+            message: 'todo retrieved successfully',
+            todo,
+          });
+        }
+        return res.status(404).send({
+          success: 'false',
+          message: 'todo does not exist',
         });
-      }
-    });
-    return res.status(404).send({
-      success: 'false',
-      message: 'todo does not exist',
-    });
+      });
   }
+
 
   // manually appending to db object
 
@@ -92,8 +121,8 @@ class TodosController {
       .then((todoFound) => {
         if (todoFound) {
           return res.status(403).send({
-            success: 'true',
-            message: 'A todo with that title exist already',
+            success: 'false',
+            message: 'A todo with that title exists already',
           });
         }
         const todo = {
